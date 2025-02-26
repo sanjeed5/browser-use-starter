@@ -9,3 +9,5 @@ wheels/
 # Virtual environments
 .venv
 .env
+agent_history.gif
+logs/
