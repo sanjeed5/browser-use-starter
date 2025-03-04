@@ -1,0 +1,12 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+Use uv instead of pip
+
+uv sync to install
+
+uv add <packege-name>
+
+uv run agent.py

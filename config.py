@@ -35,6 +35,11 @@ LOCAL_BROWSER_CONFIG = {
     # Add any other local browser settings here
 }
 
+# Toggle to use local browser instead of the default browser
+# Set to True to use your local browser with saved cookies/sessions
+# Set to False to use a clean browser instance
+USE_LOCAL_BROWSER = False
+
 # Agent Configuration
 AGENT_CONFIG = {
     "use_vision_for_planner": False,

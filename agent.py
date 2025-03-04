@@ -12,7 +12,8 @@ from config import (
     LOCAL_BROWSER_CONFIG,
     AGENT_CONFIG,
     SENSITIVE_DATA,
-    DEFAULT_TASK
+    DEFAULT_TASK,
+    USE_LOCAL_BROWSER
 )
 
 # Initialize LLMs with configuration
@@ -28,18 +29,24 @@ planner_llm = ChatGoogleGenerativeAI(
     google_api_key=GOOGLE_API_KEY
 )
 
-# Basic configuration
+# Basic configuration for default browser
 browser_config = BrowserConfig(
     headless=BROWSER_CONFIG["headless"],
     disable_security=BROWSER_CONFIG["disable_security"]
 )
 
 # Local browser configuration
-local_browser = Browser(config=BrowserConfig(
+local_browser_config = BrowserConfig(
     chrome_instance_path=f"`{LOCAL_BROWSER_CONFIG['chrome_instance_path']}`"
-))
+)
 
-browser = Browser(config=browser_config)
+# Choose which browser to use based on configuration
+if USE_LOCAL_BROWSER:
+    print(f"Using local browser: {LOCAL_BROWSER_CONFIG['chrome_instance_path']}")
+    browser = Browser(config=local_browser_config)
+else:
+    print("Using default browser configuration")
+    browser = Browser(config=browser_config)
 
 # Initialize the controller
 controller = Controller()
