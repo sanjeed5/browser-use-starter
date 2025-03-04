@@ -13,7 +13,8 @@ from config import (
     AGENT_CONFIG,
     SENSITIVE_DATA,
     DEFAULT_TASK,
-    USE_LOCAL_BROWSER
+    USE_LOCAL_BROWSER,
+    INITIAL_ACTIONS
 )
 
 # Initialize LLMs with configuration
@@ -37,7 +38,7 @@ browser_config = BrowserConfig(
 
 # Local browser configuration
 local_browser_config = BrowserConfig(
-    chrome_instance_path=f"`{LOCAL_BROWSER_CONFIG['chrome_instance_path']}`"
+    chrome_instance_path=LOCAL_BROWSER_CONFIG['chrome_instance_path']
 )
 
 # Choose which browser to use based on configuration
@@ -51,7 +52,7 @@ else:
 # Initialize the controller
 controller = Controller()
 
-@controller.action('Ask user for information')
+@controller.action('Ask user for information or clarification if you\'re stuck')
 def ask_human(question: str) -> str:
     answer = input(f'\n{question}\nInput: ')
     return ActionResult(extracted_content=answer)
@@ -66,7 +67,8 @@ async def main():
         use_vision_for_planner=AGENT_CONFIG["use_vision_for_planner"],
         planner_interval=AGENT_CONFIG["planner_interval"],
         sensitive_data=SENSITIVE_DATA,
-        controller=controller
+        controller=controller,
+        initial_actions=INITIAL_ACTIONS
     )
     history = await agent.run()
     
