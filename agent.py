@@ -2,33 +2,41 @@ from langchain_openai import ChatOpenAI
 from langchain_google_genai import ChatGoogleGenerativeAI
 from browser_use import Agent, BrowserConfig, Browser, Controller, ActionResult
 import asyncio
-from dotenv import load_dotenv
 import json
 import os
-load_dotenv()
-from browser_use import BrowserConfig
-
-sensitive_data = {'x_name': 'magnus', 'x_password': '12345678'}
-
-llm = ChatGoogleGenerativeAI(
-    model="gemini-2.0-flash-lite",
-    max_retries=10,
-    google_api_key=os.getenv("GOOGLE_API_KEY")
+from config import (
+    GOOGLE_API_KEY,
+    LLM_CONFIG,
+    PLANNER_LLM_CONFIG,
+    BROWSER_CONFIG,
+    LOCAL_BROWSER_CONFIG,
+    AGENT_CONFIG,
+    SENSITIVE_DATA,
+    DEFAULT_TASK
 )
+
+# Initialize LLMs with configuration
+llm = ChatGoogleGenerativeAI(
+    model=LLM_CONFIG["model"],
+    max_retries=LLM_CONFIG["max_retries"],
+    google_api_key=GOOGLE_API_KEY
+)
+
 planner_llm = ChatGoogleGenerativeAI(
-    model='gemini-2.0-flash', 
-    max_retries=10,
-    google_api_key=os.getenv("GOOGLE_API_KEY")
+    model=PLANNER_LLM_CONFIG["model"], 
+    max_retries=PLANNER_LLM_CONFIG["max_retries"],
+    google_api_key=GOOGLE_API_KEY
 )
 
 # Basic configuration
 browser_config = BrowserConfig(
-    headless=False,
-    disable_security=True
+    headless=BROWSER_CONFIG["headless"],
+    disable_security=BROWSER_CONFIG["disable_security"]
 )
 
+# Local browser configuration
 local_browser = Browser(config=BrowserConfig(
-    chrome_instance_path="`/Applications/Brave Browser.app/Contents/MacOS/Brave Browser`"
+    chrome_instance_path=f"`{LOCAL_BROWSER_CONFIG['chrome_instance_path']}`"
 ))
 
 browser = Browser(config=browser_config)
@@ -44,13 +52,13 @@ def ask_human(question: str) -> str:
 async def main():
     agent = Agent(
         browser=browser,
-        task="Search for trains from Mangalore to Bangalore on 22nd feb 2025.",
+        task=DEFAULT_TASK,
         llm=llm,
-        save_conversation_path="logs/conversation",  # Save chat logs
-        planner_llm=planner_llm,           # Separate model for planning
-        use_vision_for_planner=False,      # Disable vision for planner
-        planner_interval=10,                # Plan every 10 steps
-        sensitive_data=sensitive_data,     # The model will only see the keys (x_name, x_password) but never the actual values
+        save_conversation_path=AGENT_CONFIG["save_conversation_path"],
+        planner_llm=planner_llm,
+        use_vision_for_planner=AGENT_CONFIG["use_vision_for_planner"],
+        planner_interval=AGENT_CONFIG["planner_interval"],
+        sensitive_data=SENSITIVE_DATA,
         controller=controller
     )
     history = await agent.run()
@@ -80,4 +88,5 @@ async def main():
         json.dump(history_data, f, indent=2)
 
 
-asyncio.run(main())
+if __name__ == "__main__":
+    asyncio.run(main())
